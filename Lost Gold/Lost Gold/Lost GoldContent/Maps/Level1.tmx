@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="30" height="30" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="Castle2" tilewidth="32" tileheight="32">
+  <image source="../Graphics/Castle2.png" width="512" height="512"/>
+ </tileset>
+ <layer name="Water" width="30" height="30">
+  <data encoding="base64" compression="zlib">
+   eJztwwENAAAMw6D6dzVnF3JIWDVVVVXfPUMfpqM=
+  </data>
+ </layer>
+ <layer name="Path" width="30" height="30">
+  <data encoding="base64" compression="zlib">
+   eJztVsEJwzAM9P7beIV2grQTpJ0g7QK1H6Gm3Fkn2aUQKjgIwtHhk31WSseNpeBK8pcJQLVrnArOJJ8LbiIyWJ9JbYu35h8i0HpWW9kv00mpM8JbofRtNi/rJeJo9VnIOoWX9ZftrdVn/47yqv+sSdNlNu+WNF1m83rX/XnfeeQb+/2wPGXkHiHfyB9g78HIPfK8Cwz3AK/nXWB4Bnm/FV5edR6w3jEvr9L33nka4bX6rvQoyhup+WvenqdY/e2dqRFP8ZwrNEtGPQX5c6uPNUtGPQX5M9PHO3v2As0tTJ+V5COB5hamz0by3ngBzpBUPQ==
+  </data>
+ </layer>
+ <layer name="Clutter" width="30" height="30">
+  <data encoding="base64" compression="zlib">
+   eJzt1EENADAIA0D8y5lCJIx9gCx3CpombQT850wHWE4/UFfdi10BNy8/4VPoktzdBC0=
+  </data>
+ </layer>
+ <objectgroup name="Win" width="30" height="30">
+  <object gid="130" x="817" y="93"/>
+ </objectgroup>
+</map>
