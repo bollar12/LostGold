@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -8,6 +10,8 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System.IO;
+using Lost_Gold.Input;
 
 namespace Lost_Gold
 {
@@ -18,6 +22,8 @@ namespace Lost_Gold
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        Engine.Engine engine;
 
         public Game1()
         {
@@ -33,7 +39,14 @@ namespace Lost_Gold
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.DtdProcessing = 0;
+
+            StreamReader stream = System.IO.File.OpenText("Content/Maps/Level1.tmx");
+            XmlReader reader = XmlReader.Create(stream, settings);
+            engine = new Engine.Engine(this, reader);
+            Components.Add(engine);
+            Components.Add(new InputManager(this));
 
             base.Initialize();
         }
@@ -45,8 +58,7 @@ namespace Lost_Gold
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            spriteBatch = new SpriteBatch(GraphicsDevice);            
             // TODO: use this.Content to load your game content here
         }
 
