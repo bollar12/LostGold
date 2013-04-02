@@ -164,6 +164,19 @@ namespace Lost_Gold.Engine
             {
                 _cameraPosition.X += 32;
             }
+            _cameraPosition.X = (_cameraPosition.X <= 0) ? 0 : _cameraPosition.X;
+            _cameraPosition.Y = (_cameraPosition.Y <= 0) ? 0 : _cameraPosition.Y;
+
+            //int _maxWorldSizeX = this._width * this._tileWidth;
+            //int _maxWorldSizeY = this._height * this._tileHeight;
+            int _maxWorldSizeX = 30 * this._tileWidth;
+            int _maxWorldSizeY = 30 * this._tileHeight;
+            _maxWorldSizeX -= this.Game.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            _maxWorldSizeY -= this.Game.GraphicsDevice.PresentationParameters.BackBufferHeight;
+
+            _cameraPosition.X = (_cameraPosition.X > _maxWorldSizeX) ? _maxWorldSizeX : _cameraPosition.X;
+            _cameraPosition.Y = (_cameraPosition.Y > _maxWorldSizeY) ? _maxWorldSizeY : _cameraPosition.Y;
+
             base.Update(gameTime);
         }
 
