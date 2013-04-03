@@ -1,24 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" width="30" height="30" tilewidth="32" tileheight="32">
+<map version="1.0" orientation="orthogonal" width="50" height="50" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="Castle2" tilewidth="32" tileheight="32">
   <image source="../Graphics/Castle2.png" width="512" height="512"/>
+  <tile id="0">
+   <properties>
+    <property name="Collidable" value="True"/>
+   </properties>
+  </tile>
  </tileset>
- <layer name="Water" width="30" height="30">
+ <layer name="Water" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJztwwENAAAMw6D6dzVnF3JIWDVVVVXfPUMfpqM=
+   eJztwwEJAAAMBKHr3+qbLcdAwVVTVVVVVVVVVVXV5w8jBV0u
   </data>
  </layer>
- <layer name="Path" width="30" height="30">
+ <layer name="Path" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJztVsEJwzAM9P7beIV2grQTpJ0g7QK1H6Gm3Fkn2aUQKjgIwtHhk31WSseNpeBK8pcJQLVrnArOJJ8LbiIyWJ9JbYu35h8i0HpWW9kv00mpM8JbofRtNi/rJeJo9VnIOoWX9ZftrdVn/47yqv+sSdNlNu+WNF1m83rX/XnfeeQb+/2wPGXkHiHfyB9g78HIPfK8Cwz3AK/nXWB4Bnm/FV5edR6w3jEvr9L33nka4bX6rvQoyhup+WvenqdY/e2dqRFP8ZwrNEtGPQX5c6uPNUtGPQX5M9PHO3v2As0tTJ+V5COB5hamz0by3ngBzpBUPQ==
+   eJztmGEOwiAMhbn/bbiCnmB6gukJpheQ/ViCS0uLFGjM+5ImZkPoGy0FQgAAAAAAAGeWZPdB49wMjPP1kuzaz/2vcWKyh9Ii0T4WfB2pYx/npTSqfcnX0fOhjWHKL086dtPEvXcdXC5QPufztzDt8vaz84P79vn8Hb+96NC+W4Nu3jT9W1KrYwu6edP0b4mFD9Bhxz/poOrgsZ5KNdLTukvVwXgybn/oad2t2Sdy9iz0P7sO1thb6L83vceZrUN7vpL2ybN1aPKmlN9S/9aUdEh5o/HRi45f/lvbxoKeOqQaaYmUH6Ucb62RltTkOXVX0lIjLaH2V3k8SHclLTWyh448Prh4qL1bGQl1TuXiYWWee4A6p3LxsDHPAQAAAAA4PrAHVD0=
   </data>
  </layer>
- <layer name="Clutter" width="30" height="30">
+ <layer name="Clutter" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJzt1EENADAIA0D8y5lCJIx9gCx3CpombQT850wHWE4/UFfdi10BNy8/4VPoktzdBC0=
+   eJzt1YEJACAMA7D9f84u9AWHyIYmFxQKbQQAAMBM2R2AI/oDuGN3X+0wAD+p/J6PBACAty0IyQQt
   </data>
  </layer>
- <objectgroup name="Win" width="30" height="30">
-  <object gid="130" x="817" y="93"/>
+ <layer name="Collision" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztllEKgDAMQ/X+l/Z3H+uWlUS3mgeCaEkb1tJdlzHGGGP+wi14RvpqHyqtO3hnw9a2D17e1f6Pvo30VSDaba29uk7x0cadfB5t3Cx+Bx+zWUBq2cXH7F8lH8i5IfpMGDXYB4+VOUd340hfRcV7iULPPvJ50XsiOis9fRVRnl5NI40odgcfWR1En82ffGT2xkyTDdNH1isDVl+t5lJqV/IR7QF2ri+0M/dGZEcyQX30YpV1rVLJB9oPb/aJMcYYY+rwAEu6AR0=
+  </data>
+ </layer>
+ <objectgroup name="Start" width="50" height="50">
+  <object x="736" y="1184" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup name="Win" width="50" height="50">
+  <object gid="130" x="1137" y="413"/>
  </objectgroup>
 </map>

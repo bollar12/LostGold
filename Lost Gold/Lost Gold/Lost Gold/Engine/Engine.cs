@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using System.IO;
-using System.IO.Compression;
 using System.Xml.Linq;
 
 using Microsoft.Xna.Framework.Graphics;
@@ -12,14 +10,30 @@ using Microsoft.Xna.Framework;
 
 using Lost_Gold.Sprites;
 using Lost_Gold.Input;
+using Microsoft.Xna.Framework.Input;
 
 namespace Lost_Gold.Engine
 {
-    public class Engine : DrawableGameComponent, IDrawSprites
+    public class Engine : DrawableGameComponent, IDrawSprites, ICollidable
     {
+        private Boolean _debug;
+        public Boolean isDebugEnabled
+        {
+            get { return _debug; }
+        }
+
         private SpriteBatch _spriteBatch;
         protected List<DrawData> _toDraw = new List<DrawData>();
-        private Point _cameraPosition;
+
+        private SpriteFont _default;
+        
+        private Character _character;
+        private Texture2D _characterFrameArt;
+        private int _characterSpeed;
+        private Camera2d _camera2d;
+
+        protected int _startX;
+        protected int _startY;
 
         protected int _width;
         protected int _height;
@@ -29,9 +43,16 @@ namespace Lost_Gold.Engine
         protected List<Layer> _layers = new List<Layer>();
         protected TileSet _tileSet;
 
+        // Collection of collidables for collision detection
+        protected List<Collidable> _collidables = new List<Collidable>();
+
+        protected DrawData _winObj;
+
         public Engine(Game game, XmlReader level)
             : base(game)
         {
+            _debug = false;
+
             _level = level;
             while (_level.Read()) {
                 var name = _level.Name;
@@ -41,88 +62,85 @@ namespace Lost_Gold.Engine
                     case XmlNodeType.Element:
                         switch (name)
                         {
-                            case "tileset":
+                            case "map":
+                                _width = int.Parse(_level.GetAttribute("width"));
+                                _height = int.Parse(_level.GetAttribute("height"));
                                 _tileWidth = int.Parse(_level.GetAttribute("tilewidth"));
-                                _tileHeight = int.Parse(_level.GetAttribute("tileheight"));                               
+                                _tileHeight = int.Parse(_level.GetAttribute("tileheight"));
                                 break;
-                            case "image":
-                                string[] path = _level.GetAttribute("source").Split('/');
-                                path = path[path.Length - 1].Split('.');
-                                string image = path[0];
-                                _tileSet = new TileSet(Game.Content.Load<Texture2D>(@"TileSets\" + image), int.Parse(_level.GetAttribute("width")), int.Parse(_level.GetAttribute("height")), _tileWidth, _tileHeight);
+                            case "tileset":
+                                _tileSet = new TileSet(_level.ReadSubtree(), game);
                                 break;
                             case "layer":
-                                _layers.Add(
-                                    new Layer(
-                                        (string)_level.GetAttribute("name"),
-                                        int.Parse(_level.GetAttribute("width")),
-                                        int.Parse(_level.GetAttribute("height"))
-                                    )
-                                );
-                                break;
-                            case "data":
-                                //int dataSize = (int.Parse(_level.GetAttribute("width")) * int.Parse(_level.GetAttribute("height")) * 4) + 1024;
-                                int dataSize = (30 * 30 * 4) + 1024;
-                                var buffer = new byte[dataSize];
-                                if (_level.CanReadBinaryContent)
-                                {                                   
-                                    _level.ReadElementContentAsBase64(buffer, 0, dataSize);                                
-                                    Stream stream = new MemoryStream(buffer, false);
-
-                                    /*
-                                    if (_level.GetAttribute("compression") == "gzip")
-                                    {
-                                        stream = new GZipStream(stream, CompressionMode.Decompress, false);
-                                    }
-                                    else if (_level.GetAttribute("compression") == "zlib")
-                                    {*/
-                                        // Zlib specific - 2 bytes, we skip those before decompressing
-                                        stream.ReadByte();
-                                        stream.ReadByte();
-                                        stream = new DeflateStream(stream, CompressionMode.Decompress);
-                                    //}
-
-                                    using (stream)
-                                    using (var br = new BinaryReader(stream))
-                                    {
-                                        for (int y = 0; y < 30; y++)
-                                        {
-                                            for (int x = 0; x < 30; x++)
-                                            {
-                                                // b represent the tile in the tileset
-                                                int b = br.ReadInt32();
-                                                if (b > 0)
-                                                {
-                                                    this.AddDrawable(
-                                                        new DrawData(
-                                                            _tileSet.getTexture2DAtTile(b),
-                                                            new Rectangle(
-                                                                x * _tileWidth,
-                                                                y * _tileHeight,
-                                                                _tileWidth,
-                                                                _tileHeight
-                                                            )
-                                                        )
-                                                    );
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                _layers.Add(new Layer(_level.ReadSubtree(), this, _tileSet));
                                 break;
                             case "objectgroup":
+                                switch (_level.GetAttribute("name"))
+                                {
+                                    case "Start":
+                                        _level.ReadToDescendant("object");
+                                        if (_level.Name == "object")
+                                        {
+                                            _startX = int.Parse(_level.GetAttribute("x"));
+                                            _startY = int.Parse(_level.GetAttribute("y"));
+                                        }
+                                        break;
+                                    case "Win":
+                                        _level.ReadToDescendant("object");
+                                        if (_level.Name == "object")
+                                        {
+                                            int tileId = int.Parse(_level.GetAttribute("gid"));
+                                            _winObj = new DrawData(                                                
+                                                        _tileSet.getTileById(tileId).Art,
+                                                        new Rectangle(
+                                                            int.Parse(_level.GetAttribute("x")),
+                                                            int.Parse(_level.GetAttribute("y")),
+                                                            _tileWidth,
+                                                            _tileHeight
+                                                        )
+                                                    );
+                                        }
+                                        break;
+                                }
                                 break;
                         }
-                        Console.WriteLine(name);
                         break;
                 }
-            }
+            }            
         }
 
         protected override void LoadContent()
         {
             base.LoadContent();
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
+            _character = new Character(Game);
+            _character.X = _startX;
+            _character.Y = _startY;
+            _characterFrameArt = _character.getCurrentFrame(0, new GameTime());
+            _characterSpeed = 1;
+            _camera2d = new Camera2d();
+            _camera2d.Pos = centerCameraOnCharacter();
+            _camera2d.Zoom = 2.0f;
+
+            _default = Game.Content.Load<SpriteFont>(@"Fonts\Default");
+
+            foreach (Layer l in _layers)
+            {
+                foreach (LayerTile lt in l.LayerTiles)
+                {
+                    AddDrawable(
+                        new DrawData(lt.TileSetTile.Art,
+                            new Rectangle(
+                                lt.X * _tileWidth,
+                                lt.Y * _tileHeight,
+                                lt.TileSetTile.Art.Width,
+                                lt.TileSetTile.Art.Height
+                            )
+                        )
+                    );
+                }
+            }
+            AddDrawable(_winObj);
         }
 
         public void AddDrawable(DrawData drawable)
@@ -140,64 +158,135 @@ namespace Lost_Gold.Engine
             _toDraw.Remove(toRemove);
         }
 
+        public void AddCollidable(Collidable collidable)
+        {
+            if (collidable == null || _collidables.Contains(collidable))
+            {
+                Console.WriteLine("Collidable null or already added");
+                return;
+            }
+            _collidables.Add(collidable);
+        }
+
+        public void RemoveCollidable(Collidable collidable)
+        {
+            _collidables.Remove(collidable);
+        }
+
+        public Boolean Collision(Rectangle rect)
+        {
+            foreach (Collidable c in _collidables)
+            {
+                if (c.intersects(rect))
+                {
+                    //Console.WriteLine("Collision at " + rect.X + "x" + rect.Y + " with (" + c.Rectangle.X + "-" + c.Rectangle.Width + ")x(" + c.Rectangle.Y + "-" + c.Rectangle.Height + ")");
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public override void Initialize()
         {
             base.Initialize();
-            _cameraPosition = new Point(0, 0);
         }
 
         public override void Update(GameTime gameTime)
         {
-            if (InputManager.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Up))
+            if (InputManager.KeyDown(Keys.Up))
             {
-                _cameraPosition.Y -= 32;
+                if (!Collision(_character.getCollisionRectangle(_character.X, _character.Y - _characterSpeed)))
+                {
+                    _characterFrameArt = _character.getCurrentFrame(3, gameTime);
+                    _character.Y -= _characterSpeed;
+                }
             }
-            if (InputManager.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Down))
+            else if (InputManager.KeyDown(Keys.Down))
             {
-                _cameraPosition.Y += 32;
+                if (!Collision(_character.getCollisionRectangle(_character.X, _character.Y + _characterSpeed)))
+                {
+                    _characterFrameArt = _character.getCurrentFrame(0, gameTime);
+                    _character.Y += _characterSpeed;
+                }
             }
-            if (InputManager.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Left))
+            else if (InputManager.KeyDown(Keys.Left))
             {
-                _cameraPosition.X -= 32;
+                if (!Collision(_character.getCollisionRectangle(_character.X - _characterSpeed, _character.Y)))
+                {
+                    _characterFrameArt = _character.getCurrentFrame(1, gameTime);
+                    _character.X -= _characterSpeed;
+                }
             }
-            if (InputManager.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Right))
+            else if (InputManager.KeyDown(Keys.Right))
             {
-                _cameraPosition.X += 32;
+                if (!Collision(_character.getCollisionRectangle(_character.X + _characterSpeed, _character.Y)))
+                {
+                    _characterFrameArt = _character.getCurrentFrame(2, gameTime);
+                    _character.X += _characterSpeed;
+                }
             }
-            _cameraPosition.X = (_cameraPosition.X <= 0) ? 0 : _cameraPosition.X;
-            _cameraPosition.Y = (_cameraPosition.Y <= 0) ? 0 : _cameraPosition.Y;
 
-            //int _maxWorldSizeX = this._width * this._tileWidth;
-            //int _maxWorldSizeY = this._height * this._tileHeight;
-            int _maxWorldSizeX = 30 * this._tileWidth;
-            int _maxWorldSizeY = 30 * this._tileHeight;
-            _maxWorldSizeX -= this.Game.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            _maxWorldSizeY -= this.Game.GraphicsDevice.PresentationParameters.BackBufferHeight;
-
-            _cameraPosition.X = (_cameraPosition.X > _maxWorldSizeX) ? _maxWorldSizeX : _cameraPosition.X;
-            _cameraPosition.Y = (_cameraPosition.Y > _maxWorldSizeY) ? _maxWorldSizeY : _cameraPosition.Y;
-
+            _camera2d.Pos = centerCameraOnCharacter();
+            
             base.Update(gameTime);
         }
 
         public override void Draw(GameTime gameTime)
         {
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(
+                SpriteSortMode.Immediate,
+                BlendState.AlphaBlend,
+                null,
+                null,
+                null,
+                null,
+                _camera2d.get_transformation(GraphicsDevice)
+            );
+
             foreach (DrawData d in _toDraw)
             {
                 drawElement(d);
             }
+
+            // Draw character
+            drawElement(
+                new DrawData(_characterFrameArt,
+                    new Rectangle(
+                        _character.X,
+                        _character.Y,
+                        _character._frameWidth,
+                        _character._frameHeight
+                    )
+                )
+            );
+            
+            // Draw text
+            drawString(gameTime.TotalGameTime.Minutes.ToString() + ":" + gameTime.TotalGameTime.Seconds.ToString());
+
             _spriteBatch.End();
             base.Draw(gameTime);
         }
 
         protected virtual void drawElement(DrawData drawable)
         {
-            Rectangle worldDestination = drawable.Destination;
-            worldDestination.X -= _cameraPosition.X;
-            worldDestination.Y -= _cameraPosition.Y;
+            Rectangle worldDest = drawable.Destination;
+            worldDest.X -= (int)_camera2d.Pos.X;
+            worldDest.Y -= (int)_camera2d.Pos.Y;
 
-            _spriteBatch.Draw(drawable.Art, worldDestination, drawable.Source, Color.White);
+            _spriteBatch.Draw(drawable.Art, worldDest, drawable.Source, Color.White);
+        }
+
+        protected virtual void drawString(string text)
+        {
+            _spriteBatch.DrawString(_default, text, Vector2.Zero, Color.Yellow);
+        }
+
+        private Vector2 centerCameraOnCharacter()
+        {
+            return new Vector2(
+                (_character.X - ((GraphicsDevice.Viewport.Width / 2)) / _camera2d.Zoom) + _characterFrameArt.Bounds.Width / 2,
+                (_character.Y - ((GraphicsDevice.Viewport.Height / 2)) / _camera2d.Zoom) + _characterFrameArt.Bounds.Height / 2
+            );
         }
     }
 }

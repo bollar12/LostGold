@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+using System.IO;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -10,8 +12,11 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using System.IO;
+
+using Lost_Gold.Engine;
 using Lost_Gold.Input;
+using Lost_Gold.GameScreens;
+using Lost_Gold.Controls;
 
 namespace Lost_Gold
 {
@@ -23,11 +28,17 @@ namespace Lost_Gold
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        TitleScreen titleScreen;
         Engine.Engine engine;
+
+        ControlManager controlManager;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            //graphics.IsFullScreen = true;
             Content.RootDirectory = "Content";
         }
 
@@ -39,6 +50,7 @@ namespace Lost_Gold
         /// </summary>
         protected override void Initialize()
         {
+            // Initialize engine
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.DtdProcessing = 0;
 
@@ -46,7 +58,20 @@ namespace Lost_Gold
             XmlReader reader = XmlReader.Create(stream, settings);
             engine = new Engine.Engine(this, reader);
             Components.Add(engine);
+            engine.Visible = false;
+            engine.Enabled = false;
+
+            // Add input manager
             Components.Add(new InputManager(this));
+            
+            // Add titlescreen
+            titleScreen = new TitleScreen(this);
+            Components.Add(titleScreen);          
+  
+            // Add ControlManager
+            controlManager = new ControlManager(this);
+            Components.Add(controlManager);
+            Services.AddService(typeof(ControlManager), controlManager);
 
             base.Initialize();
         }
@@ -68,7 +93,6 @@ namespace Lost_Gold
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
         }
 
         /// <summary>
@@ -79,10 +103,8 @@ namespace Lost_Gold
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || InputManager.KeyPressed(Keys.Escape))
                 this.Exit();
-
-            // TODO: Add your update logic here
 
             base.Update(gameTime);
         }
@@ -93,10 +115,7 @@ namespace Lost_Gold
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // TODO: Add your drawing code here
-
+            GraphicsDevice.Clear(Color.Black);
             base.Draw(gameTime);
         }
     }
