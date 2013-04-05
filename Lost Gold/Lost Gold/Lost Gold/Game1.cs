@@ -36,9 +36,9 @@ namespace Lost_Gold
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            //graphics.IsFullScreen = true;
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.IsFullScreen = true;
             Content.RootDirectory = "Content";
         }
 
@@ -60,6 +60,7 @@ namespace Lost_Gold
             Components.Add(engine);
             engine.Visible = false;
             engine.Enabled = false;
+            Services.AddService(typeof(Engine.Engine), engine);
 
             // Add input manager
             Components.Add(new InputManager(this));
@@ -102,10 +103,6 @@ namespace Lost_Gold
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || InputManager.KeyPressed(Keys.Escape))
-                this.Exit();
-
             base.Update(gameTime);
         }
 

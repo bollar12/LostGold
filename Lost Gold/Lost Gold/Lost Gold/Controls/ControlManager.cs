@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using Lost_Gold.Input;
 
 
 namespace Lost_Gold.Controls
@@ -20,6 +21,7 @@ namespace Lost_Gold.Controls
         private SpriteBatch _spriteBatch;
         private SpriteFont _spriteFont;
         private List<IControl> _controls = new List<IControl>();
+        private int _selectedIndex;
 
         public ControlManager(Game game)
             : base(game)
@@ -33,7 +35,7 @@ namespace Lost_Gold.Controls
         /// </summary>
         public override void Initialize()
         {
-            // TODO: Add your initialization code here
+            _selectedIndex = 0;
 
             base.Initialize();
         }
@@ -52,9 +54,22 @@ namespace Lost_Gold.Controls
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
+            if (InputManager.KeyReleased(Keys.Up))
+            {
+                if (_selectedIndex > 0)
+                    _selectedIndex--;
+            }
+            else if (InputManager.KeyReleased(Keys.Down))
+            {
+                if (_selectedIndex < (_controls.Count-1))
+                    _selectedIndex++;
+            }
+
+            int i = 0;
             foreach (IControl c in this._controls)
             {
-                c.Update(gameTime);
+                c.Update(gameTime, i == _selectedIndex ? true : false);
+                i++;
             }
 
             base.Update(gameTime);
@@ -68,9 +83,11 @@ namespace Lost_Gold.Controls
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin();
+            int i = 0;
             foreach (IControl c in this._controls)
             {
-                c.Draw(_spriteBatch, _spriteFont, gameTime);
+                c.Draw(_spriteBatch, _spriteFont, gameTime, i == _selectedIndex ? true : false);
+                i++;
             }
             _spriteBatch.End();
 
