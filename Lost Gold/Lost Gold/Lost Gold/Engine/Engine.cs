@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework;
 using Lost_Gold.Sprites;
 using Lost_Gold.Input;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Lost_Gold.Engine
 {
@@ -28,6 +29,10 @@ namespace Lost_Gold.Engine
         private SpriteFont _default;
         
         private Character _character;
+        public Character Character
+        {
+            get { return _character; }
+        }
         private Texture2D _characterFrameArt;
         private int _characterSpeed;
         private Camera2d _camera2d;
@@ -45,8 +50,26 @@ namespace Lost_Gold.Engine
 
         // Collection of collidables for collision detection
         protected List<Collidable> _collidables = new List<Collidable>();
+        
+        protected double _timeInSecondsTotal;
+        protected double _timePassed;
+        protected double _timeInSecondsLeft;
+        public int timeLeft
+        {
+            get { return (int)_timeInSecondsLeft; }
+        }
 
-        protected DrawData _winObj;
+        protected float _maxCameraX;
+        protected float _maxCameraY;
+
+        protected Rectangle _winRect;
+        public Rectangle WinArea
+        {
+            get { return _winRect; }
+        }
+
+        protected SoundEffect _ambientSound;
+        protected SoundEffectInstance _ambientPlayer;
 
         public Engine(Game game, XmlReader level)
             : base(game)
@@ -89,17 +112,23 @@ namespace Lost_Gold.Engine
                                         _level.ReadToDescendant("object");
                                         if (_level.Name == "object")
                                         {
-                                            int tileId = int.Parse(_level.GetAttribute("gid"));
-                                            _winObj = new DrawData(                                                
-                                                        _tileSet.getTileById(tileId).Art,
-                                                        new Rectangle(
-                                                            int.Parse(_level.GetAttribute("x")),
-                                                            int.Parse(_level.GetAttribute("y")),
-                                                            _tileWidth,
-                                                            _tileHeight
-                                                        )
-                                                    );
+                                            _winRect = new Rectangle(
+                                                int.Parse(_level.GetAttribute("x")),
+                                                int.Parse(_level.GetAttribute("y")),
+                                                int.Parse(_level.GetAttribute("width")),
+                                                int.Parse(_level.GetAttribute("height"))
+                                            );
                                         }
+                                        break;
+                                    case "Timer":
+                                        XmlReader properties = _level.ReadSubtree();                                        
+                                        while (properties.Read())
+                                        {
+                                            if (properties.Name == "property" && properties.GetAttribute("name") == "Timer")
+                                            {
+                                                _timeInSecondsTotal = double.Parse(properties.GetAttribute("value"));
+                                            }
+                                        }           
                                         break;
                                 }
                                 break;
@@ -117,12 +146,16 @@ namespace Lost_Gold.Engine
             _character.X = _startX;
             _character.Y = _startY;
             _characterFrameArt = _character.getCurrentFrame(0, new GameTime());
-            _characterSpeed = 1;
+            _characterSpeed = 2;
             _camera2d = new Camera2d();
             _camera2d.Pos = centerCameraOnCharacter();
-            _camera2d.Zoom = 2.0f;
+            _camera2d.Zoom = 1.5f;
 
             _default = Game.Content.Load<SpriteFont>(@"Fonts\Default");
+
+            _ambientSound = Game.Content.Load<SoundEffect>(@"Sounds\AfternoonAmbienceSimple_01");
+            _ambientPlayer = _ambientSound.CreateInstance();
+            _ambientPlayer.IsLooped = true;
 
             foreach (Layer l in _layers)
             {
@@ -140,7 +173,6 @@ namespace Lost_Gold.Engine
                     );
                 }
             }
-            AddDrawable(_winObj);
         }
 
         public void AddDrawable(DrawData drawable)
@@ -179,7 +211,6 @@ namespace Lost_Gold.Engine
             {
                 if (c.intersects(rect))
                 {
-                    //Console.WriteLine("Collision at " + rect.X + "x" + rect.Y + " with (" + c.Rectangle.X + "-" + c.Rectangle.Width + ")x(" + c.Rectangle.Y + "-" + c.Rectangle.Height + ")");
                     return true;
                 }
             }
@@ -189,6 +220,18 @@ namespace Lost_Gold.Engine
         public override void Initialize()
         {
             base.Initialize();
+
+            // Calculate max camera x and y
+            _maxCameraX = _width * _tileWidth;
+            _maxCameraY = _height * _tileHeight;
+
+            float viewportX = GraphicsDevice.Viewport.Width / 2;
+            float viewportY = GraphicsDevice.Viewport.Height / 2;
+
+            _maxCameraX -= viewportX + (viewportX - (viewportX / _camera2d.Zoom));
+            _maxCameraY -= viewportY + (viewportY - (viewportY / _camera2d.Zoom));
+
+            _ambientPlayer.Play();
         }
 
         public override void Update(GameTime gameTime)
@@ -227,6 +270,8 @@ namespace Lost_Gold.Engine
             }
 
             _camera2d.Pos = centerCameraOnCharacter();
+
+            _timePassed += gameTime.ElapsedGameTime.Milliseconds;
             
             base.Update(gameTime);
         }
@@ -261,7 +306,7 @@ namespace Lost_Gold.Engine
             );
             
             // Draw text
-            drawString(gameTime.TotalGameTime.Minutes.ToString() + ":" + gameTime.TotalGameTime.Seconds.ToString());
+            drawString(timeLeftToString());
 
             _spriteBatch.End();
             base.Draw(gameTime);
@@ -283,10 +328,34 @@ namespace Lost_Gold.Engine
 
         private Vector2 centerCameraOnCharacter()
         {
-            return new Vector2(
-                (_character.X - ((GraphicsDevice.Viewport.Width / 2)) / _camera2d.Zoom) + _characterFrameArt.Bounds.Width / 2,
-                (_character.Y - ((GraphicsDevice.Viewport.Height / 2)) / _camera2d.Zoom) + _characterFrameArt.Bounds.Height / 2
-            );
+            // Calculate center position based on character position
+            float x = (_character.X - ((GraphicsDevice.Viewport.Width / 2) / _camera2d.Zoom)) + _characterFrameArt.Bounds.Width / 2;
+            float y = (_character.Y - ((GraphicsDevice.Viewport.Height / 2) / _camera2d.Zoom)) + _characterFrameArt.Bounds.Height / 2;
+
+            // Make sure camera doesn't go outside map bounds
+            x = x <= 0 ? 0 : x;
+            x = (x > _maxCameraX) ? _maxCameraX : x;
+
+            y = y <= 0 ? 0 : y;
+            y = (y > _maxCameraY) ? _maxCameraY : y;
+
+            // Return camera position
+            return new Vector2(x, y);
+        }
+
+        private string timeLeftToString()
+        {
+            _timeInSecondsLeft = _timeInSecondsTotal - (_timePassed/1000);
+            int minutes = (int)Math.Floor(_timeInSecondsLeft / 60);
+            int seconds = (int)_timeInSecondsLeft - (minutes * 60);
+            return ((minutes < 10) ? "0" : "") + minutes + ":" + ((seconds < 10) ? "0" : "") + seconds;
+        }
+
+        public void Reset()
+        {
+            _timePassed = 0;
+            _character.X = _startX;
+            _character.Y = _startY;
         }
     }
 }

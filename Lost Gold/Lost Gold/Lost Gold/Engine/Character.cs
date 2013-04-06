@@ -59,7 +59,10 @@ namespace Lost_Gold.Engine
         }
 
         public Rectangle getCollisionRectangle(int x, int y) {
-            return new Rectangle(x, y, _frameWidth, _frameHeight);
+            Rectangle rect = new Rectangle(x, y, _frameWidth, _frameHeight);
+            rect.Y += 20;
+            rect.Height -= 25;
+            return rect;
         }
 
         private Texture2D getTexture2DAtPos(int x, int y)

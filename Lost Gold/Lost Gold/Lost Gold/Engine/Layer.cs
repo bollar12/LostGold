@@ -76,7 +76,6 @@ namespace Lost_Gold.Engine
                                             TileSetTile t = tileSet.getTileById(tileId);
                                             if (t is TileSetTile)
                                             {
-                                                Boolean addDrawable = true;
                                                 if (t.getProperty("Collidable") is string && t.getProperty("Collidable").Equals("True"))
                                                 {
                                                     engine.AddCollidable(
@@ -88,13 +87,9 @@ namespace Lost_Gold.Engine
                                                                 tileSet.tileHeight
                                                             )
                                                         )
-                                                    );
-                                                    addDrawable = (engine.isDebugEnabled) ? true : false;
+                                                    );                                             
                                                 }
-                                                if (addDrawable)
-                                                {
-                                                    _layerTiles.Add(new LayerTile(t, x, y));
-                                                }
+                                                _layerTiles.Add(new LayerTile(t, x, y));
                                             }
                                         }
                                     }

@@ -18,6 +18,8 @@ namespace Lost_Gold.GameScreens
     /// </summary>
     public class TitleScreen : Microsoft.Xna.Framework.GameComponent
     {
+        ControlManager _controlManager;
+
         public TitleScreen(Game game)
             : base(game)
         {
@@ -30,24 +32,35 @@ namespace Lost_Gold.GameScreens
         /// </summary>
         public override void Initialize()
         {
-            ControlManager controlManager = (ControlManager)Game.Services.GetService(typeof(ControlManager));
+            _controlManager = (ControlManager)Game.Services.GetService(typeof(ControlManager));
+
+            Text title = new Text();
+            title.Name = "Lost Gold";
+            title.textSize = Text.textSizeOptions.Large;
+            title.offsetY = -150;
+            _controlManager.Add(title);
+
+            Text byLine = new Text();
+            byLine.Name = "by Lars Boldt";
+            byLine.textSize = Text.textSizeOptions.Small;
+            byLine.offsetY = -120;
+            _controlManager.Add(byLine);
 
             Label newGameLbl = new Label();
-            newGameLbl.Position = new Vector2(0, 100);
             newGameLbl.Name = "Start new game";
             newGameLbl.onSelect += new EventHandler(newGameLbl_onSelect);
-            controlManager.AddControl(newGameLbl);
+            _controlManager.Add(newGameLbl);
 
             Label optionsLbl = new Label();
-            optionsLbl.Position = new Vector2(0, 130);
             optionsLbl.Name = "Options";
-            controlManager.AddControl(optionsLbl);
+            optionsLbl.offsetY = 30;
+            _controlManager.Add(optionsLbl);
 
             Label exitLbl = new Label();
-            exitLbl.Position = new Vector2(0, 160);
             exitLbl.Name = "Exit";
+            exitLbl.offsetY = 60;
             exitLbl.onSelect += new EventHandler(exitLbl_onSelect);
-            controlManager.AddControl(exitLbl);
+            _controlManager.Add(exitLbl);
 
             base.Initialize();
         }
@@ -69,12 +82,15 @@ namespace Lost_Gold.GameScreens
         }
 
         void newGameLbl_onSelect(object sender, EventArgs e)
-        {
+        {            
             this.Enabled = false;
 
             Engine.Engine engine = (Engine.Engine)Game.Services.GetService(typeof(Engine.Engine));
             engine.Enabled = true;
             engine.Visible = true;
+            engine.Reset();
+
+            _controlManager.Clear();            
         }
     }
 }

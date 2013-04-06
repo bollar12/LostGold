@@ -24,10 +24,11 @@ namespace Lost_Gold.Engine
         public Collidable(int x, int y, int width, int height)
         {
             _rect = new Rectangle(x, y, width, height);
+            _rect.Inflate(-10, 0);
         }
 
         public Boolean intersects(Rectangle rect)
-        {
+        {            
             return _rect.Intersects(rect);
         }
     }

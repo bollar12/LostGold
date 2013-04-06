@@ -112,8 +112,9 @@
   <ItemGroup>
     <Compile Include="Controls\Control.cs" />
     <Compile Include="Controls\ControlManager.cs" />
-    <Compile Include="Controls\IControl.cs" />
     <Compile Include="Controls\Label.cs" />
+    <Compile Include="Controls\SelectableControl.cs" />
+    <Compile Include="Controls\Text.cs" />
     <Compile Include="Engine\Camera2d.cs" />
     <Compile Include="Engine\Character.cs" />
     <Compile Include="Engine\Collidable.cs" />
@@ -124,7 +125,6 @@
     <Compile Include="Engine\TileSetTile.cs" />
     <Compile Include="Engine\TileSet.cs" />
     <Compile Include="GameScreens\TitleScreen.cs" />
-    <Compile Include="GameStates\GameStateManager.cs" />
     <Compile Include="Input\InputManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />

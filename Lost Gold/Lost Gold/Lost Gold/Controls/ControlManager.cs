@@ -19,9 +19,14 @@ namespace Lost_Gold.Controls
     public class ControlManager : DrawableGameComponent
     {
         private SpriteBatch _spriteBatch;
-        private SpriteFont _spriteFont;
-        private List<IControl> _controls = new List<IControl>();
+        private SpriteFont _spriteFontSmall;
+        private SpriteFont _spriteFontMedium;
+        private SpriteFont _spriteFontLarge;
+        private List<Control> _controls = new List<Control>();
         private int _selectedIndex;
+        private int _selectableControls;
+
+        private SoundEffect _itemSelect;
 
         public ControlManager(Game game)
             : base(game)
@@ -43,7 +48,11 @@ namespace Lost_Gold.Controls
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
-            _spriteFont = Game.Content.Load<SpriteFont>(@"Fonts\Controls");
+            _spriteFontLarge = Game.Content.Load<SpriteFont>(@"Fonts\ControlsLarge");
+            _spriteFontMedium = Game.Content.Load<SpriteFont>(@"Fonts\ControlsMedium");
+            _spriteFontSmall = Game.Content.Load<SpriteFont>(@"Fonts\ControlsSmall");
+
+            _itemSelect = Game.Content.Load<SoundEffect>(@"Sounds\UI_Clicks01");
 
             base.LoadContent();
         }
@@ -53,23 +62,37 @@ namespace Lost_Gold.Controls
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
-        {
+        {            
             if (InputManager.KeyReleased(Keys.Up))
             {
                 if (_selectedIndex > 0)
+                {
                     _selectedIndex--;
+                    playEffect();
+                }                    
             }
             else if (InputManager.KeyReleased(Keys.Down))
             {
-                if (_selectedIndex < (_controls.Count-1))
+                if (_selectedIndex < (_selectableControls - 1))
+                {
                     _selectedIndex++;
+                    playEffect();
+                }
             }
 
-            int i = 0;
-            foreach (IControl c in this._controls)
+            int x = 0;
+            for (int i = 0; i < _controls.Count(); i++ )
             {
-                c.Update(gameTime, i == _selectedIndex ? true : false);
-                i++;
+                if (_controls[i] is SelectableControl)
+                {
+                    SelectableControl c = (SelectableControl)_controls[i];
+                    c.Update(gameTime, x == _selectedIndex ? true : false);
+                    x++;
+                }
+                else
+                {
+                    _controls[i].Update(gameTime);
+                }                
             }
 
             base.Update(gameTime);
@@ -83,23 +106,48 @@ namespace Lost_Gold.Controls
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin();
-            int i = 0;
-            foreach (IControl c in this._controls)
+            int x = 0;
+            for (int i = 0; i < _controls.Count(); i++)
             {
-                c.Draw(_spriteBatch, _spriteFont, gameTime, i == _selectedIndex ? true : false);
-                i++;
+                SpriteFont _spriteFont = _spriteFontMedium;
+                switch (_controls[i].textSize)
+                {
+                    case Control.textSizeOptions.Small:
+                        _spriteFont = _spriteFontSmall;
+                        break;
+                    case Control.textSizeOptions.Medium:
+                        _spriteFont = _spriteFontMedium;
+                        break;
+                    case Control.textSizeOptions.Large:
+                        _spriteFont = _spriteFontLarge;
+                        break;
+                }
+                if (_controls[i] is SelectableControl)
+                {
+                    SelectableControl c = (SelectableControl)_controls[i];
+                    c.Draw(_spriteBatch, _spriteFont, gameTime, x == _selectedIndex ? true : false);
+                    x++;
+                }
+                else
+                {
+                    _controls[i].Draw(_spriteBatch, _spriteFont, gameTime);
+                }
             }
             _spriteBatch.End();
 
             base.Draw(gameTime);
         }
 
-        public void AddControl(IControl control)
+        public void Add(Control control)
         {
             _controls.Add(control);
+            if (control is SelectableControl)
+            {
+                _selectableControls++;
+            }
         }
 
-        public void RemoveControl(IControl control)
+        public void Remove(Control control)
         {
             _controls.Remove(control);
         }
@@ -107,6 +155,13 @@ namespace Lost_Gold.Controls
         public void Clear()
         {
             _controls.Clear();
+            _selectedIndex = 0;
+            _selectableControls = 0;
+        }
+
+        private void playEffect()
+        {
+            _itemSelect.Play();
         }
     }
 }

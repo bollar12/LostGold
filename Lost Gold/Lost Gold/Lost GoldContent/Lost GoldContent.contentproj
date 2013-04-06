@@ -42,20 +42,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TileSets\Castle2.png">
-      <Name>Castle2</Name>
+    <Compile Include="Other\squire_m.png">
+      <Name>squire_m</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Maps\Level1.tmx">
-      <Name>Level1</Name>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </Content>
-    <Compile Include="Other\squire_m.png">
-      <Name>squire_m</Name>
+    <Compile Include="TileSets\Tiles.png">
+      <Name>Tiles</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
@@ -68,8 +61,43 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Fonts\Controls.spritefont">
-      <Name>Controls</Name>
+    <Compile Include="Fonts\ControlsMedium.spritefont">
+      <Name>ControlsMedium</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Maps\Level.tmx">
+      <Name>Level</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Compile Include="Sounds\AfternoonAmbienceSimple_01.wav">
+      <Name>AfternoonAmbienceSimple_01</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Sounds\AfternoonAmbienceSimple_03.wav">
+      <Name>AfternoonAmbienceSimple_03</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Sounds\UI_Clicks01.wav">
+      <Name>UI_Clicks01</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Fonts\ControlsLarge.spritefont">
+      <Name>ControlsLarge</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Fonts\ControlsSmall.spritefont">
+      <Name>ControlsSmall</Name>
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
     </Compile>

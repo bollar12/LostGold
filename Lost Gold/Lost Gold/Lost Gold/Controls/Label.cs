@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Lost_Gold.Controls
 {
-    public class Label : Control
+    public class Label : SelectableControl
     {
         public Label()
         {

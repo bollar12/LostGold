@@ -54,7 +54,7 @@ namespace Lost_Gold
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.DtdProcessing = 0;
 
-            StreamReader stream = System.IO.File.OpenText("Content/Maps/Level1.tmx");
+            StreamReader stream = System.IO.File.OpenText("Content/Maps/Level.tmx");
             XmlReader reader = XmlReader.Create(stream, settings);
             engine = new Engine.Engine(this, reader);
             Components.Add(engine);
@@ -62,7 +62,7 @@ namespace Lost_Gold
             engine.Enabled = false;
             Services.AddService(typeof(Engine.Engine), engine);
 
-            // Add input manager
+            // Add InputManager
             Components.Add(new InputManager(this));
             
             // Add titlescreen
@@ -103,6 +103,39 @@ namespace Lost_Gold
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            if (engine.Enabled && engine.timeLeft <= 0)
+            {
+                Text loseText = new Text();
+                loseText.textSize = Text.textSizeOptions.Large;
+                loseText.Color = Color.Red;
+                loseText.Name = "You are out of time!";
+                controlManager.Add(loseText);
+
+                Label continueLbl = new Label();
+                continueLbl.Name = "Press \"Enter\" to return to menu";
+                continueLbl.offsetY = 50;
+                continueLbl.onSelect += new EventHandler(continueLbl_onSelect);
+                controlManager.Add(continueLbl);
+                
+                engine.Enabled = false;
+            }
+            if (engine.WinArea.Intersects(engine.Character.getCollisionRectangle(engine.Character.X, engine.Character.Y)) && engine.Enabled)
+            {
+                Text winText = new Text();
+                winText.textSize = Text.textSizeOptions.Large;
+                winText.Color = Color.Gold;
+                winText.Name = "You found the gold!";
+                controlManager.Add(winText);                
+
+                Label continueLbl = new Label();
+                continueLbl.Name = "Press \"Enter\" to return to menu";
+                continueLbl.offsetY = 50;
+                continueLbl.onSelect +=new EventHandler(continueLbl_onSelect);
+                controlManager.Add(continueLbl);
+
+                engine.Enabled = false;
+            }
+
             base.Update(gameTime);
         }
 
@@ -114,6 +147,14 @@ namespace Lost_Gold
         {
             GraphicsDevice.Clear(Color.Black);
             base.Draw(gameTime);
+        }
+
+        void continueLbl_onSelect(object sender, EventArgs e)
+        {
+            controlManager.Clear();
+            titleScreen.Enabled = true;
+            titleScreen.Initialize();
+            engine.Visible = false;
         }
     }
 }

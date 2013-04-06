@@ -9,10 +9,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Lost_Gold.Controls
 {
-    public abstract class Control : IControl
-    {
-        public event EventHandler onSelect;
-
+    public abstract class Control
+    {       
         protected string _name;
         public string Name
         {
@@ -20,7 +18,15 @@ namespace Lost_Gold.Controls
             set { _name = value; }
         }
 
-        protected object _value;
+        protected Color _color = Color.White;
+        public Color Color
+        {
+            set { _color = value; }
+        }
+
+        public enum textSizeOptions { Small, Medium, Large };
+        public textSizeOptions textSize = textSizeOptions.Medium;
+
         protected Vector2 _pos;
         public Vector2 Position
         {
@@ -28,26 +34,23 @@ namespace Lost_Gold.Controls
             set { _pos = value; }
         }
 
-        public virtual void Update(GameTime gameTime, Boolean selected)
+        public int offsetX;
+        public int offsetY;
+
+        public virtual void Update(GameTime gameTime) {}
+
+        public virtual void Draw(SpriteBatch spriteBatch, SpriteFont spriteFont, GameTime gameTime)
         {
-            if (InputManager.KeyReleased(Keys.Enter) && selected)
-            {
-                if (this.onSelect != null)
-                    this.onSelect(this, new EventArgs());
-            }
+            _pos = centerText(spriteBatch, spriteFont, _name);
+            _pos.X += offsetX;
+            _pos.Y += offsetY;
+            spriteBatch.DrawString(spriteFont, _name, _pos, _color);            
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch, SpriteFont spriteFont, GameTime gameTime, Boolean selected)
-        {
-            Vector2 textCentered = centerTextHorizontally(spriteBatch, spriteFont, _name);
-            _pos.X = textCentered.X;
-            spriteBatch.DrawString(spriteFont, _name, _pos, selected ? Color.Yellow : Color.White);            
-        }
-
-        public virtual Vector2 centerTextHorizontally(SpriteBatch spriteBatch, SpriteFont spriteFont, string text)
+        public virtual Vector2 centerText(SpriteBatch spriteBatch, SpriteFont spriteFont, string text)
         {
             Vector2 textSize = spriteFont.MeasureString(text);
-            return new Vector2((spriteBatch.GraphicsDevice.Viewport.Width/2) - textSize.X/2, 0);
+            return new Vector2((spriteBatch.GraphicsDevice.Viewport.Width / 2) - (textSize.X / 2), (spriteBatch.GraphicsDevice.Viewport.Height / 2) - (textSize.Y / 2));
         }
     }
 }
