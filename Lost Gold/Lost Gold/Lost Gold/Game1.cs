@@ -36,9 +36,9 @@ namespace Lost_Gold
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            graphics.IsFullScreen = true;
+            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            //graphics.IsFullScreen = true;
             Content.RootDirectory = "Content";
         }
 
@@ -105,35 +105,65 @@ namespace Lost_Gold
         {
             if (engine.Enabled && engine.timeLeft <= 0)
             {
-                Text loseText = new Text();
-                loseText.textSize = Text.textSizeOptions.Large;
+                Control loseText = new Control("You are out of time!", Control.TextSizeOptions.Large);
                 loseText.Color = Color.Red;
-                loseText.Name = "You are out of time!";
                 controlManager.Add(loseText);
 
-                Label continueLbl = new Label();
-                continueLbl.Name = "Press \"Enter\" to return to menu";
+                SelectableControl continueLbl = new SelectableControl("Press \"Enter\" or GamePad \"A\" to return to menu", Control.TextSizeOptions.Medium);
                 continueLbl.offsetY = 50;
-                continueLbl.onSelect += new EventHandler(continueLbl_onSelect);
+                continueLbl.OnSelect += new EventHandler(continueLbl_onSelect);
                 controlManager.Add(continueLbl);
                 
                 engine.Enabled = false;
             }
-            if (engine.WinArea.Intersects(engine.Character.getCollisionRectangle(engine.Character.X, engine.Character.Y)) && engine.Enabled)
-            {
-                Text winText = new Text();
-                winText.textSize = Text.textSizeOptions.Large;
-                winText.Color = Color.Gold;
-                winText.Name = "You found the gold!";
-                controlManager.Add(winText);                
 
-                Label continueLbl = new Label();
-                continueLbl.Name = "Press \"Enter\" to return to menu";
+            if (engine.WinArea.Intersects(engine.Character.Rectangle()) && engine.Enabled)
+            {
+                Control winText = new Control("You found the gold!", Control.TextSizeOptions.Large);
+                winText.Color = Color.Gold;                
+                controlManager.Add(winText);
+
+                SelectableControl continueLbl = new SelectableControl("Press \"Enter\" or GamePad \"A\" to return to menu", Control.TextSizeOptions.Medium);             
                 continueLbl.offsetY = 50;
-                continueLbl.onSelect +=new EventHandler(continueLbl_onSelect);
+                continueLbl.OnSelect +=new EventHandler(continueLbl_onSelect);
                 controlManager.Add(continueLbl);
 
                 engine.Enabled = false;
+            }
+
+            if (InputManager.KeyReleased(Keys.P))
+            {
+                if (engine.Enabled)
+                {
+                    engine.Enabled = false;
+                    controlManager.Add(new Control("Game paused", Control.TextSizeOptions.Large));
+                    Control helpTxt = new Control("Press \"P\" to unpause", Control.TextSizeOptions.Small);
+                    helpTxt.offsetY = 50;
+                    controlManager.Add(helpTxt);
+                }
+                else
+                {
+                    engine.Enabled = true;
+                    controlManager.Clear();
+                }
+            }
+
+            if (InputManager.KeyReleased(Keys.Escape) && engine.Enabled)
+            {
+                engine.Enabled = false;
+
+                Control menuTxt = new Control("Game menu", Control.TextSizeOptions.Large);
+                menuTxt.offsetY = -40;
+                controlManager.Add(menuTxt);
+                
+                SelectableControl resume = new SelectableControl("Resume", Control.TextSizeOptions.Medium);
+                resume.OnSelect += new EventHandler(resume_OnSelect);
+                controlManager.Add(resume);
+
+                SelectableControl exit = new SelectableControl("Exit", Control.TextSizeOptions.Medium);
+                exit.offsetY = 20;
+                exit.OnSelect += new EventHandler(continueLbl_onSelect);
+                controlManager.Add(exit);
             }
 
             base.Update(gameTime);
@@ -155,6 +185,12 @@ namespace Lost_Gold
             titleScreen.Enabled = true;
             titleScreen.Initialize();
             engine.Visible = false;
+        }
+
+        void resume_OnSelect(object sender, EventArgs e)
+        {
+            engine.Enabled = true;
+            controlManager.Clear();
         }
     }
 }

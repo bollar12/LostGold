@@ -54,13 +54,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Fonts\Default.spritefont">
-      <Name>Default</Name>
-      <Importer>FontDescriptionImporter</Importer>
-      <Processor>FontDescriptionProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Fonts\ControlsMedium.spritefont">
       <Name>ControlsMedium</Name>
       <Importer>FontDescriptionImporter</Importer>
@@ -74,11 +67,6 @@
     </Content>
     <Compile Include="Sounds\AfternoonAmbienceSimple_01.wav">
       <Name>AfternoonAmbienceSimple_01</Name>
-      <Importer>WavImporter</Importer>
-      <Processor>SoundEffectProcessor</Processor>
-    </Compile>
-    <Compile Include="Sounds\AfternoonAmbienceSimple_03.wav">
-      <Name>AfternoonAmbienceSimple_03</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
     </Compile>

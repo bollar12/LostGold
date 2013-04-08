@@ -99,14 +99,21 @@ namespace Lost_Gold.Input
             return gamePadStates[(int)index].IsButtonUp(button) &&
                 lastGamePadStates[(int)index].IsButtonDown(button);
         }
+
         public static bool ButtonPressed(Buttons button, PlayerIndex index)
         {
             return gamePadStates[(int)index].IsButtonDown(button) &&
                 lastGamePadStates[(int)index].IsButtonUp(button);
         }
+
         public static bool ButtonDown(Buttons button, PlayerIndex index)
         {
             return gamePadStates[(int)index].IsButtonDown(button);
+        }
+
+        public static Vector2 gamePadThumbStickLeftState(PlayerIndex index)
+        {
+            return new Vector2(gamePadStates[(int)index].ThumbSticks.Left.X, gamePadStates[(int)index].ThumbSticks.Left.Y);
         }
     }
 }

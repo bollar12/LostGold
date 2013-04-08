@@ -34,32 +34,25 @@ namespace Lost_Gold.GameScreens
         {
             _controlManager = (ControlManager)Game.Services.GetService(typeof(ControlManager));
 
-            Text title = new Text();
-            title.Name = "Lost Gold";
-            title.textSize = Text.textSizeOptions.Large;
+            Control title = new Control("Lost Gold", Control.TextSizeOptions.Large);
             title.offsetY = -150;
             _controlManager.Add(title);
 
-            Text byLine = new Text();
-            byLine.Name = "by Lars Boldt";
-            byLine.textSize = Text.textSizeOptions.Small;
+            Control byLine = new Control("by Lars Boldt", Control.TextSizeOptions.Small);
             byLine.offsetY = -120;
             _controlManager.Add(byLine);
 
-            Label newGameLbl = new Label();
-            newGameLbl.Name = "Start new game";
-            newGameLbl.onSelect += new EventHandler(newGameLbl_onSelect);
+            SelectableControl newGameLbl = new SelectableControl("Start new game", Control.TextSizeOptions.Medium);
+            newGameLbl.OnSelect += new EventHandler(newGameLbl_onSelect);
             _controlManager.Add(newGameLbl);
 
-            Label optionsLbl = new Label();
-            optionsLbl.Name = "Options";
+            SelectableControl optionsLbl = new SelectableControl("Options", Control.TextSizeOptions.Medium);
             optionsLbl.offsetY = 30;
             _controlManager.Add(optionsLbl);
 
-            Label exitLbl = new Label();
-            exitLbl.Name = "Exit";
+            SelectableControl exitLbl = new SelectableControl("Exit", Control.TextSizeOptions.Medium);
             exitLbl.offsetY = 60;
-            exitLbl.onSelect += new EventHandler(exitLbl_onSelect);
+            exitLbl.OnSelect += new EventHandler(exitLbl_onSelect);
             _controlManager.Add(exitLbl);
 
             base.Initialize();
@@ -84,13 +77,12 @@ namespace Lost_Gold.GameScreens
         void newGameLbl_onSelect(object sender, EventArgs e)
         {            
             this.Enabled = false;
+            _controlManager.Clear();     
 
             Engine.Engine engine = (Engine.Engine)Game.Services.GetService(typeof(Engine.Engine));
             engine.Enabled = true;
             engine.Visible = true;
-            engine.Reset();
-
-            _controlManager.Clear();            
+            engine.Reset();                   
         }
     }
 }

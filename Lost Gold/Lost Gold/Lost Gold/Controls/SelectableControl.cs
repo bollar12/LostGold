@@ -9,31 +9,46 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lost_Gold.Controls
 {
-    public abstract class SelectableControl : Control
+    /// <summary>
+    /// Extension of Control that allows control to be selected
+    /// Has an event that actions can be bound to
+    /// </summary>
+    public class SelectableControl : Control
     {
-        public event EventHandler onSelect;
+        // EventHandler for when control is "activated"
+        public event EventHandler OnSelect;
 
-        protected Color _selectColor = Color.Yellow;
-        public Color SelectColor
+        // Customizable color for when control is selected
+        public Color OriginalColor;
+        public Color SelectColor = Color.Yellow;
+
+        public SelectableControl(string name, TextSizeOptions size)
+            : base(name, size)
         {
-            set { _selectColor = value; }
+            OriginalColor = Color;
         }
 
+        /// <summary>
+        /// Updates control, triggers event if "activated"
+        /// </summary>
+        /// <param name="gameTime"></param>
+        /// <param name="selected"></param>
         public virtual void Update(GameTime gameTime, Boolean selected)
         {
-            if (InputManager.KeyReleased(Keys.Enter) && selected)
+            if (selected)
             {
-                if (this.onSelect != null)
-                    this.onSelect(this, new EventArgs());
+                Color = SelectColor;
             }
-        }
+            else
+            {
+                Color = OriginalColor;
+            }
 
-        public virtual void Draw(SpriteBatch spriteBatch, SpriteFont spriteFont, GameTime gameTime, Boolean selected)
-        {
-            _pos = centerText(spriteBatch, spriteFont, _name);
-            _pos.X += offsetX;
-            _pos.Y += offsetY;
-            spriteBatch.DrawString(spriteFont, _name, _pos, selected ? _selectColor : _color);
+            if (selected && (InputManager.KeyReleased(Keys.Enter) || InputManager.ButtonPressed(Buttons.A, 0)))
+            {
+                if (this.OnSelect != null)
+                    this.OnSelect(this, new EventArgs());
+            }            
         }
     }
 }

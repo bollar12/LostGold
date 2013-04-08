@@ -12,6 +12,7 @@ using Lost_Gold.Sprites;
 using Lost_Gold.Input;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
+using Lost_Gold.Controls;
 
 namespace Lost_Gold.Engine
 {
@@ -25,8 +26,6 @@ namespace Lost_Gold.Engine
 
         private SpriteBatch _spriteBatch;
         protected List<DrawData> _toDraw = new List<DrawData>();
-
-        private SpriteFont _default;
         
         private Character _character;
         public Character Character
@@ -70,6 +69,9 @@ namespace Lost_Gold.Engine
 
         protected SoundEffect _ambientSound;
         protected SoundEffectInstance _ambientPlayer;
+
+        protected ControlManager _controlManager;
+        protected Control _timer;
 
         public Engine(Game game, XmlReader level)
             : base(game)
@@ -151,8 +153,6 @@ namespace Lost_Gold.Engine
             _camera2d.Pos = centerCameraOnCharacter();
             _camera2d.Zoom = 1.5f;
 
-            _default = Game.Content.Load<SpriteFont>(@"Fonts\Default");
-
             _ambientSound = Game.Content.Load<SoundEffect>(@"Sounds\AfternoonAmbienceSimple_01");
             _ambientPlayer = _ambientSound.CreateInstance();
             _ambientPlayer.IsLooped = true;
@@ -173,6 +173,13 @@ namespace Lost_Gold.Engine
                     );
                 }
             }
+
+            _controlManager = (ControlManager)Game.Services.GetService(typeof(ControlManager));
+            _timer = new Control(timeLeftToString(), Control.TextSizeOptions.Large);
+            _timer.Id = "timer";
+            _timer.CenterText = false;
+            _timer.Position = Vector2.Zero;
+            _timer.Color = Color.Goldenrod;
         }
 
         public void AddDrawable(DrawData drawable)
@@ -230,48 +237,58 @@ namespace Lost_Gold.Engine
 
             _maxCameraX -= viewportX + (viewportX - (viewportX / _camera2d.Zoom));
             _maxCameraY -= viewportY + (viewportY - (viewportY / _camera2d.Zoom));
-
-            _ambientPlayer.Play();
         }
 
         public override void Update(GameTime gameTime)
         {
-            if (InputManager.KeyDown(Keys.Up))
+            Rectangle _charRect = _character.Rectangle();
+            if (InputManager.KeyDown(Keys.Up) || InputManager.gamePadThumbStickLeftState(0).Y > 0.0f)
             {
-                if (!Collision(_character.getCollisionRectangle(_character.X, _character.Y - _characterSpeed)))
+                _charRect.Y -= _characterSpeed;
+                if (!Collision(_charRect))
                 {
                     _characterFrameArt = _character.getCurrentFrame(3, gameTime);
                     _character.Y -= _characterSpeed;
                 }
             }
-            else if (InputManager.KeyDown(Keys.Down))
+            else if (InputManager.KeyDown(Keys.Down) || InputManager.gamePadThumbStickLeftState(0).Y < 0.0f)
             {
-                if (!Collision(_character.getCollisionRectangle(_character.X, _character.Y + _characterSpeed)))
+                _charRect.Y += _characterSpeed;
+                if (!Collision(_charRect))
                 {
                     _characterFrameArt = _character.getCurrentFrame(0, gameTime);
                     _character.Y += _characterSpeed;
                 }
             }
-            else if (InputManager.KeyDown(Keys.Left))
+            else if (InputManager.KeyDown(Keys.Left) || InputManager.gamePadThumbStickLeftState(0).X < 0.0f)
             {
-                if (!Collision(_character.getCollisionRectangle(_character.X - _characterSpeed, _character.Y)))
+                _charRect.X -= _characterSpeed;
+                if (!Collision(_charRect))
                 {
                     _characterFrameArt = _character.getCurrentFrame(1, gameTime);
                     _character.X -= _characterSpeed;
                 }
             }
-            else if (InputManager.KeyDown(Keys.Right))
+            else if (InputManager.KeyDown(Keys.Right) || InputManager.gamePadThumbStickLeftState(0).X > 0.0f)
             {
-                if (!Collision(_character.getCollisionRectangle(_character.X + _characterSpeed, _character.Y)))
+                _charRect.X += _characterSpeed;
+                if (!Collision(_charRect))
                 {
                     _characterFrameArt = _character.getCurrentFrame(2, gameTime);
                     _character.X += _characterSpeed;
                 }
-            }
+            }            
 
             _camera2d.Pos = centerCameraOnCharacter();
 
             _timePassed += gameTime.ElapsedGameTime.Milliseconds;
+            _timer.Name = timeLeftToString();
+
+            // Add timer / check if timer is in controls
+            if (!_controlManager.isControl("timer"))
+            {
+                _controlManager.Add(_timer);
+            }                
             
             base.Update(gameTime);
         }
@@ -303,10 +320,7 @@ namespace Lost_Gold.Engine
                         _character._frameHeight
                     )
                 )
-            );
-            
-            // Draw text
-            drawString(timeLeftToString());
+            );           
 
             _spriteBatch.End();
             base.Draw(gameTime);
@@ -321,11 +335,11 @@ namespace Lost_Gold.Engine
             _spriteBatch.Draw(drawable.Art, worldDest, drawable.Source, Color.White);
         }
 
-        protected virtual void drawString(string text)
-        {
-            _spriteBatch.DrawString(_default, text, Vector2.Zero, Color.Yellow);
-        }
-
+        /// <summary>
+        /// Calculates center position for camera based on character position.
+        /// Map bounds are also taken into consideration so that camera doesn't move outside map.
+        /// </summary>
+        /// <returns>X and Y coordinates for camera</returns>
         private Vector2 centerCameraOnCharacter()
         {
             // Calculate center position based on character position
@@ -343,6 +357,10 @@ namespace Lost_Gold.Engine
             return new Vector2(x, y);
         }
 
+        /// <summary>
+        /// Formats time left into a readable string
+        /// </summary>
+        /// <returns>Time left formatted</returns>
         private string timeLeftToString()
         {
             _timeInSecondsLeft = _timeInSecondsTotal - (_timePassed/1000);
@@ -351,8 +369,13 @@ namespace Lost_Gold.Engine
             return ((minutes < 10) ? "0" : "") + minutes + ":" + ((seconds < 10) ? "0" : "") + seconds;
         }
 
+        /// <summary>
+        /// Resets engine so that map can be played again
+        /// </summary>
         public void Reset()
-        {
+        {            
+            _ambientPlayer.Play();            
+
             _timePassed = 0;
             _character.X = _startX;
             _character.Y = _startY;

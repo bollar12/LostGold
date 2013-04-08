@@ -11,13 +11,25 @@ namespace Lost_Gold.Engine
     {
         public int X;
         public int Y;
+
+        public Rectangle Rectangle()
+        {
+            Rectangle rect = new Rectangle(X, Y, _frameWidth, _frameHeight);
+            rect.Y += 30;
+            rect.Height -= 35;
+            return rect;
+        }
+
         public int _frameWidth;
         public int _frameHeight;
+
         private Texture2D _art;
+        
         private int _currentFrame;
         private int _maxFrames;
         private int _currentDirection;
         private int _lastFrameUpdate;
+        
         private Game _game;
 
         public Character(Game game)
@@ -56,14 +68,7 @@ namespace Lost_Gold.Engine
             }
             Texture2D _frame = getTexture2DAtPos(_currentFrame, _currentDirection);            
             return _frame;
-        }
-
-        public Rectangle getCollisionRectangle(int x, int y) {
-            Rectangle rect = new Rectangle(x, y, _frameWidth, _frameHeight);
-            rect.Y += 20;
-            rect.Height -= 25;
-            return rect;
-        }
+        }        
 
         private Texture2D getTexture2DAtPos(int x, int y)
         {
