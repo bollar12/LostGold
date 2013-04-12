@@ -10,6 +10,11 @@ namespace Lost_Gold.Engine
     {
         // Tile id
         private int _id;
+        public int id
+        {
+            get { return _id; }
+        }
+
         // Tile x
         private int _x;
         // Tile y
@@ -20,13 +25,29 @@ namespace Lost_Gold.Engine
             get { return _art; }
         }
         // Tile properties
-        private Dictionary<string, string> _properties = new Dictionary<string, string>();
+        private Dictionary<string, string> _properties = new Dictionary<string, string>();                
 
-        public int id
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="tileArt"></param>
+        /// <param name="tileId"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        public TileSetTile(Texture2D tileArt, int tileId, int x, int y)
         {
-            get { return _id; }
+            _art = tileArt;
+            _id = tileId;
+            _x = x;
+            _y = y;
         }
 
+        /// <summary>
+        /// Get property
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public Boolean setProperty(string key, string value)
         {
             if (!_properties.ContainsKey(key))
@@ -37,6 +58,11 @@ namespace Lost_Gold.Engine
             return false;
         }
 
+        /// <summary>
+        /// Return property
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public String getProperty(string key)
         {
             if (_properties.ContainsKey(key))
@@ -45,13 +71,5 @@ namespace Lost_Gold.Engine
             }
             return null;
         }
-
-        public TileSetTile(Texture2D tileArt, int tileId, int x, int y)
-        {
-            _art = tileArt;
-            _id = tileId;
-            _x = x;
-            _y = y;
-        }        
     }
 }

@@ -49,12 +49,21 @@ namespace Lost_Gold.Controls
         public int offsetX;
         public int offsetY;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="size"></param>
         public Control(string name, TextSizeOptions size)
         {
             this.Name = name;
             this.TextSize = size;
         }
 
+        /// <summary>
+        /// Load fonts
+        /// </summary>
+        /// <param name="game"></param>
         public virtual void LoadContent(Game game)
         {
             _spriteBatch = new SpriteBatch(game.GraphicsDevice);
@@ -101,6 +110,10 @@ namespace Lost_Gold.Controls
             return new Vector2((_spriteBatch.GraphicsDevice.Viewport.Width / 2) - (textSize.X / 2), (_spriteBatch.GraphicsDevice.Viewport.Height / 2) - (textSize.Y / 2));
         }
 
+        /// <summary>
+        /// Find the spritefont that matches the selected size
+        /// </summary>
+        /// <returns></returns>
         protected SpriteFont getFont()
         {
             SpriteFont spriteFont = _spriteFontMedium;

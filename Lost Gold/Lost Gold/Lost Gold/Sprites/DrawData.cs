@@ -7,10 +7,16 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Lost_Gold.Sprites
 {
+    /// <summary>
+    /// DrawData class, used by 2d engine to draw layers
+    /// </summary>
     public class DrawData
     {
+        // 2DTexture
         public Texture2D Art { get; set; }
 
+        // Position
+        private Point _position;
         public Point Position
         {
             get { return _position; }
@@ -22,6 +28,8 @@ namespace Lost_Gold.Sprites
             }
         }
 
+        // Destination
+        private Rectangle _destination;
         public Rectangle Destination
         {
             get { return _destination; }
@@ -33,15 +41,23 @@ namespace Lost_Gold.Sprites
             }
         }
 
+        // Source
         public Rectangle Source { get; set; }
-        public Color BlendColor { get; set; }
+        // BlendColor
+        public Color BlendColor { get; set; }               
 
-        private Rectangle _destination;
-        private Point _position;
-
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="art"></param>
         public DrawData(Texture2D art)
             : this(art, art.Bounds) {}
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="art"></param>
+        /// <param name="destination"></param>
         public DrawData(Texture2D art, Rectangle destination)
         {
             Art = art;

@@ -18,17 +18,21 @@ namespace Lost_Gold.Controls
     /// </summary>
     public class ControlManager : DrawableGameComponent
     {        
+        // List of controls based on IControl
         private List<IControl> _controls = new List<IControl>();
+
+        // Selected index for SelectableControls
         private int _selectedIndex;
+
+        // Counter for controls that are of type SelectableControl
         private int _selectableControls;
 
+        // Soundeffect played when SelectableControls get focus
         private SoundEffect _itemSelect;
 
+        // Constructor
         public ControlManager(Game game)
-            : base(game)
-        {
-            // TODO: Construct any child components here
-        }
+            : base(game) { }
 
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
@@ -41,6 +45,9 @@ namespace Lost_Gold.Controls
             base.Initialize();
         }
 
+        /// <summary>
+        /// Load sounds
+        /// </summary>
         protected override void LoadContent()
         {            
             _itemSelect = Game.Content.Load<SoundEffect>(@"Sounds\UI_Clicks01");
@@ -54,6 +61,7 @@ namespace Lost_Gold.Controls
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
+            // Check input and move selectablecontrol focus up/down - Supports keyboard and gamepad - Assumes gamepad index 0, although there can be 4 (0,1,2,3)
             if (InputManager.KeyReleased(Keys.Up) || InputManager.ButtonPressed(Buttons.DPadUp, 0) || InputManager.ButtonPressed(Buttons.LeftThumbstickUp, 0))
             {
                 if (_selectedIndex > 0)
@@ -71,6 +79,7 @@ namespace Lost_Gold.Controls
                 }
             }
 
+            // Update controls and check if SelectableControls are selected
             int x = 0;
             for (int i = 0; i < _controls.Count(); i++ )
             {
@@ -90,7 +99,7 @@ namespace Lost_Gold.Controls
         }
 
         /// <summary>
-        /// 
+        /// Draw controls
         /// </summary>
         /// <param name="gameTime"></param>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
@@ -103,7 +112,11 @@ namespace Lost_Gold.Controls
 
             base.Draw(gameTime);
         }
-
+        
+        /// <summary>
+        /// Adds control
+        /// </summary>
+        /// <param name="control"></param>
         public void Add(IControl control)
         {
             control.LoadContent(Game);
@@ -114,11 +127,18 @@ namespace Lost_Gold.Controls
             }
         }
 
+        /// <summary>
+        /// Removes control
+        /// </summary>
+        /// <param name="control"></param>
         public void Remove(IControl control)
         {
             _controls.Remove(control);
         }
 
+        /// <summary>
+        /// Clears list of controls and resets counters
+        /// </summary>
         public void Clear()
         {
             _controls.Clear();
@@ -126,11 +146,20 @@ namespace Lost_Gold.Controls
             _selectableControls = 0;
         }
 
+
+        /// <summary>
+        /// Plays soundeffect for item
+        /// </summary>
         private void playEffect()
         {
             _itemSelect.Play();
         }
 
+        /// <summary>
+        /// Checks if a control is in the list of controls, based on controlId
+        /// </summary>
+        /// <param name="ControlId"></param>
+        /// <returns></returns>
         public Boolean isControl(string ControlId)
         {
             for (int i = 0; i < _controls.Count(); i++)

@@ -44,6 +44,8 @@ namespace Lost_Gold.Controls
                 Color = OriginalColor;
             }
 
+            // If control is activated, by keyboard or gamepad, fire event
+            // Assumes gamepad index 0, even if there are 4 (0,1,2,3)
             if (selected && (InputManager.KeyReleased(Keys.Enter) || InputManager.ButtonPressed(Buttons.A, 0)))
             {
                 if (this.OnSelect != null)

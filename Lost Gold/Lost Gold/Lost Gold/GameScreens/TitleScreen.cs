@@ -18,6 +18,7 @@ namespace Lost_Gold.GameScreens
     /// </summary>
     public class TitleScreen : Microsoft.Xna.Framework.GameComponent
     {
+        // ControlManager
         ControlManager _controlManager;
 
         public TitleScreen(Game game)
@@ -32,26 +33,27 @@ namespace Lost_Gold.GameScreens
         /// </summary>
         public override void Initialize()
         {
+            // Get ControlManager from services
             _controlManager = (ControlManager)Game.Services.GetService(typeof(ControlManager));
 
+            // Add new control (title)
             Control title = new Control("Lost Gold", Control.TextSizeOptions.Large);
             title.offsetY = -150;
             _controlManager.Add(title);
 
+            // Add new control (byline)
             Control byLine = new Control("by Lars Boldt", Control.TextSizeOptions.Small);
             byLine.offsetY = -120;
             _controlManager.Add(byLine);
 
+            // Add new selectablecontrol (Start game)
             SelectableControl newGameLbl = new SelectableControl("Start new game", Control.TextSizeOptions.Medium);
             newGameLbl.OnSelect += new EventHandler(newGameLbl_onSelect);
             _controlManager.Add(newGameLbl);
 
-            SelectableControl optionsLbl = new SelectableControl("Options", Control.TextSizeOptions.Medium);
-            optionsLbl.offsetY = 30;
-            _controlManager.Add(optionsLbl);
-
+            // Add new selectablecontrol (exit game)
             SelectableControl exitLbl = new SelectableControl("Exit", Control.TextSizeOptions.Medium);
-            exitLbl.offsetY = 60;
+            exitLbl.offsetY = 30;
             exitLbl.OnSelect += new EventHandler(exitLbl_onSelect);
             _controlManager.Add(exitLbl);
 
@@ -69,20 +71,33 @@ namespace Lost_Gold.GameScreens
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// Method for when exit control is activated
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void exitLbl_onSelect(object sender, EventArgs e)
         {
             Game.Exit();
         }
 
+        /// <summary>
+        /// Method for when start new game is activated
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void newGameLbl_onSelect(object sender, EventArgs e)
         {            
+            // Disable titlescreen
             this.Enabled = false;
+            // Remove all controls from controlmanager
             _controlManager.Clear();     
 
+            // Enable and reset engine for a new game
             Engine.Engine engine = (Engine.Engine)Game.Services.GetService(typeof(Engine.Engine));
+            engine.Reset();
             engine.Enabled = true;
-            engine.Visible = true;
-            engine.Reset();                   
+            engine.Visible = true;            
         }
     }
 }

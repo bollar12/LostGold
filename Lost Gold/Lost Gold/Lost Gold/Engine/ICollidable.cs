@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework;
 
 namespace Lost_Gold.Engine
 {
+    /// <summary>
+    /// Collidable interface
+    /// </summary>
     interface ICollidable
     {
         void AddCollidable(Collidable collidable);

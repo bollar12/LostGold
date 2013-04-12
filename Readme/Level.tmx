@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="70" height="70" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="Tiles" tilewidth="32" tileheight="32">
+  <image source="../Graphics/Tiles.png" width="256" height="2144"/>
+  <tile id="494">
+   <properties>
+    <property name="Collidable" value="True"/>
+   </properties>
+  </tile>
+  <tile id="495">
+   <properties>
+    <property name="Collidable" value="True"/>
+   </properties>
+  </tile>
+  <tile id="501">
+   <properties>
+    <property name="Collidable" value="True"/>
+   </properties>
+  </tile>
+  <tile id="502">
+   <properties>
+    <property name="Collidable" value="True"/>
+   </properties>
+  </tile>
+  <tile id="503">
+   <properties>
+    <property name="Collidable" value="True"/>
+   </properties>
+  </tile>
+  <tile id="508">
+   <properties>
+    <property name="Collidable" value="True"/>
+   </properties>
+  </tile>
+  <tile id="510">
+   <properties>
+    <property name="Collidable" value="True"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Ground" width="70" height="70">
+  <data encoding="base64" compression="zlib">
+   eJztwwENAAAMw6DanvsLOSSsmqqqqqqqqqqqqqqqqqqqqqqqqvryAareDIw=
+  </data>
+ </layer>
+ <layer name="Trees" width="70" height="70">
+  <data encoding="base64" compression="zlib">
+   eJztXE1v1DAQbSr44cCpcAJ+HpU4cClwSE+bXBAkBwt36vG8+co60JGsWruxPXnznsdOvJ2nm5vfL+VJedzKZSsv9tQuFS7z9vdXUnmsxrg2FySeUFyWREwu1XijYkP9zNTRjsFKxluquIxkFwaXyDjWfCzY7FYwsY6ZpcfiUwuXSI6vjf65uKBjZuqxcJrDJVpTCC7omLTdAmKJ4kf1nqGp1rwu4cKN2eqr8EWa89dJl09aPKe5ScK893kvrlxcWvHnckR2vkDG8nzOzQO9+Qfx74h8wY1Vrlmq+0A+18S1fD83fENxiZqDEW56OYLGteh/nf5iW69vUFwiNNXrfyH+cvdhmculuJa+tXHzagqJgXWP5OGgJm7Rmor0O+JeJN54cNHcQxYfrfOA5HsELr178PgtYeOZByTfpfWV5x68fiMx9eKSPUar/6g+KeYeDnK49HgTdQ9RfnN8jOI4/Zutqcx6bdG4HKWpjDrlTQYurTVUpKYy6nSfnYELp6moPHJWHWWNl1GnPDkKl6w8ElWPzkcL6WsJ6vfsOurZCPepraP5aBGuKf3U7z1G1gvKfyk/ILqbO9+drV6b93rPc7lR6tZ81NPHv8CXjP1RzalR7jNTR0jOpe8Sstb40vwfVUfyEYIdvYa+249cIx2xh+iNhbwnkK5BcdVy24M10pbzufcOfVVcU+bpebLzv5UjPFj32kr5KMpKn0Vb2nme+ul514XMHVw+Qs5aaEp9DoVibtGOxE+UO1I+pn5mnFsqeqbxQvYdnHY4i9IUx6koW6bnceE+a33PaUfiJ4qLVlNR54i8ZuHwqJpCYtw6byjtxS2YjqQpBBOab5B1moU3I2gK1Y41N2k5bFkTR2tKo50632SeF9L2maEp7oxh/RzPoh2LpiKeAWk1tdubrbzdyrs+VGIsPH5z3IzcT7Zi2uPs3Vbeb+WDEhevdlo+Ud5EP394ffs8HivxodjHrXzaymcFLlbt0L1vC9sWNlG4vLrtY2GxCO3Qtr29Z298Sz16r1jHzaod6exoq79ITWVh0rqnSJ9a/XFYWnA52qJ9QttdWztInCX/kDUtoiOtfq+FiYbb0rqNa/dzktcdo2iHM6uvvXY/lFhcUzsWbnP7CqnddyUuo2Di0RHyPuqbEpcRLcJv2u5eictIv/3WnhOQuFe3+6LE5Ww6ammK+/1l3d+DEpcRDcVFk6e+KvsZSUecBrw5de+vPBdA+xxJRxpNce+VonQ6umX4beXdSAU5PxKl07NgQvkf6Tf6e/f/1QoHs/5/0lnLzps/lgVedg==
+  </data>
+ </layer>
+ <objectgroup name="Start" width="70" height="70">
+  <object x="832" y="224" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup name="Win" width="70" height="70">
+  <object x="800" y="1536" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup name="Timer" width="70" height="70">
+  <properties>
+   <property name="Timer" value="300"/>
+  </properties>
+ </objectgroup>
+</map>

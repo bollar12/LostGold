@@ -28,17 +28,21 @@ namespace Lost_Gold
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        // Titlescreen
         TitleScreen titleScreen;
+        // Tiled TMX 2d Engine
         Engine.Engine engine;
-
+        // Control Manager (menus, text on screen etc)
         ControlManager controlManager;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            //graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            //graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            //graphics.IsFullScreen = true;
+            // Fullscreen based on users current display mode
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.IsFullScreen = true;
+            
             Content.RootDirectory = "Content";
         }
 
@@ -50,19 +54,24 @@ namespace Lost_Gold
         /// </summary>
         protected override void Initialize()
         {
-            // Initialize engine
+            // Skip XML Dtd processing
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.DtdProcessing = 0;
-
+            // Read in TMX level
             StreamReader stream = System.IO.File.OpenText("Content/Maps/Level.tmx");
+            // Create XmlReader based on level stream
             XmlReader reader = XmlReader.Create(stream, settings);
+            // Initialize engine with level xml
             engine = new Engine.Engine(this, reader);
+            // Add engine to components
             Components.Add(engine);
+            // Disable engine (Titlescreen is startup screen)
             engine.Visible = false;
             engine.Enabled = false;
+            // Add engine to services
             Services.AddService(typeof(Engine.Engine), engine);
 
-            // Add InputManager
+            // Add InputManager (Keyboard, GamePad)
             Components.Add(new InputManager(this));
             
             // Add titlescreen
@@ -85,7 +94,6 @@ namespace Lost_Gold
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);            
-            // TODO: use this.Content to load your game content here
         }
 
         /// <summary>
@@ -103,6 +111,7 @@ namespace Lost_Gold
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            // Game over, you ran out of time
             if (engine.Enabled && engine.timeLeft <= 0)
             {
                 Control loseText = new Control("You are out of time!", Control.TextSizeOptions.Large);
@@ -117,6 +126,7 @@ namespace Lost_Gold
                 engine.Enabled = false;
             }
 
+            // Game won, you found the gold area
             if (engine.WinArea.Intersects(engine.Character.Rectangle()) && engine.Enabled)
             {
                 Control winText = new Control("You found the gold!", Control.TextSizeOptions.Large);
@@ -131,16 +141,19 @@ namespace Lost_Gold
                 engine.Enabled = false;
             }
 
-            if (InputManager.KeyReleased(Keys.P))
+            // Game pause
+            if (InputManager.KeyReleased(Keys.P) || InputManager.ButtonPressed(Buttons.Back, 0))
             {
+                // If game is running, pause it
                 if (engine.Enabled)
                 {
                     engine.Enabled = false;
                     controlManager.Add(new Control("Game paused", Control.TextSizeOptions.Large));
-                    Control helpTxt = new Control("Press \"P\" to unpause", Control.TextSizeOptions.Small);
+                    Control helpTxt = new Control("Press \"P\" or GamePad \"Back\" to unpause", Control.TextSizeOptions.Small);
                     helpTxt.offsetY = 50;
                     controlManager.Add(helpTxt);
                 }
+                // Game is paused, start it
                 else
                 {
                     engine.Enabled = true;
@@ -148,7 +161,8 @@ namespace Lost_Gold
                 }
             }
 
-            if (InputManager.KeyReleased(Keys.Escape) && engine.Enabled)
+            // Bring up Resume/exit menu during gameplay
+            if ((InputManager.KeyReleased(Keys.Escape) || InputManager.ButtonPressed(Buttons.Start, 0)) && engine.Enabled)
             {
                 engine.Enabled = false;
 
@@ -179,6 +193,11 @@ namespace Lost_Gold
             base.Draw(gameTime);
         }
 
+        /// <summary>
+        /// Exit game back to titlescreen
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void continueLbl_onSelect(object sender, EventArgs e)
         {
             controlManager.Clear();
@@ -187,6 +206,11 @@ namespace Lost_Gold
             engine.Visible = false;
         }
 
+        /// <summary>
+        /// Resume game
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void resume_OnSelect(object sender, EventArgs e)
         {
             engine.Enabled = true;
